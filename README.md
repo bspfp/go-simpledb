@@ -115,3 +115,24 @@ func main() {
 	}
 }
 ```
+
+## 데이터베이스 테이블 스키마 (Database table schema)
+
+```sql
+CREATE TABLE testdb (
+    pk   TEXT    NOT NULL
+                 PRIMARY KEY,
+    rev  INTEGER NOT NULL,
+    data TEXT    NOT NULL,
+    si0  TEXT,
+    ni0  INTEGER,
+    si1  TEXT,
+    ni1  INTEGER,
+    si2  TEXT,
+    ni2  INTEGER,
+    si3  TEXT,
+    ni3  INTEGER,
+    si4  TEXT,
+    ni4  INTEGER
+);
+```
