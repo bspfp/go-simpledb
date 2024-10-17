@@ -9,6 +9,8 @@ type DbDoc struct {
 
 	SI [MaxIndex]*string
 	NI [MaxIndex]*int64
+
+	PutOrDelete bool `json:"-" yaml:"-"` // Put(false) or Delete(true)
 }
 
 func NewDbDoc(pk string, rev int64, data string) *DbDoc {

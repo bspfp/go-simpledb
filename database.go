@@ -242,22 +242,41 @@ func (d *Database) put(tx dbExecutor, items []*DbDoc) error {
 	putSql.WriteString(indexListForUpsert)
 	putSql.WriteString(") WHERE rev < excluded.rev")
 
-	stmt, err := tx.Prepare(putSql.String())
+	putStmt, err := tx.Prepare(putSql.String())
 	if err != nil {
 		return err
 	}
+	defer putStmt.Close()
+
+	var deleteSql strings.Builder
+	deleteSql.Grow(4096)
+	deleteSql.WriteString(`DELETE FROM "`)
+	deleteSql.WriteString(d.Name)
+	deleteSql.WriteString(`" WHERE pk = ? AND rev = ?`)
+
+	deleteStmt, err := tx.Prepare(deleteSql.String())
+	if err != nil {
+		return err
+	}
+	defer deleteStmt.Close()
 
 	for _, item := range items {
-		params := make([]any, 3+MaxIndex*2)
-		params[0] = item.PK
-		params[1] = item.Rev
-		params[2] = item.Data
-		for i := 0; i < MaxIndex; i++ {
-			params[3+i*2] = item.SI[i]
-			params[4+i*2] = item.NI[i]
-		}
+		var res sql.Result
+		var err error
+		if item.PutOrDelete {
+			res, err = deleteStmt.Exec(item.PK, item.Rev)
+		} else {
+			params := make([]any, 3+MaxIndex*2)
+			params[0] = item.PK
+			params[1] = item.Rev
+			params[2] = item.Data
+			for i := 0; i < MaxIndex; i++ {
+				params[3+i*2] = item.SI[i]
+				params[4+i*2] = item.NI[i]
+			}
 
-		res, err := stmt.Exec(params...)
+			res, err = putStmt.Exec(params...)
+		}
 		if err != nil {
 			return err
 		}
