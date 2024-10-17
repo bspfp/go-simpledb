@@ -263,7 +263,7 @@ func (d *Database) put(tx dbExecutor, items []*DbDoc) error {
 	for _, item := range items {
 		var res sql.Result
 		var err error
-		if item.PutOrDelete {
+		if item.ToDelete {
 			res, err = deleteStmt.Exec(item.PK, item.Rev)
 		} else {
 			params := make([]any, 3+MaxIndex*2)
