@@ -223,7 +223,7 @@ func (d *Database) getCount(tx dbExecutor, where *WhereClause) ([]*DbDoc, error)
 		return nil, err
 	}
 	doc := &DbDoc{}
-	doc.NI[0] = &count
+	doc.Int64Index(0, count)
 	return []*DbDoc{doc}, nil
 }
 
@@ -271,8 +271,16 @@ func (d *Database) put(tx dbExecutor, items []*DbDoc) error {
 			params[1] = item.Rev
 			params[2] = item.Data
 			for i := 0; i < MaxIndex; i++ {
-				params[3+i*2] = item.SI[i]
-				params[4+i*2] = item.NI[i]
+				if v, ok := item.SI[i]; ok {
+					params[3+i*2] = v
+				} else {
+					params[3+i*2] = nil
+				}
+				if v, ok := item.NI[i]; ok {
+					params[4+i*2] = v
+				} else {
+					params[4+i*2] = nil
+				}
 			}
 
 			res, err = putStmt.Exec(params...)

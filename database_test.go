@@ -72,7 +72,7 @@ func TestExample(t *testing.T) {
 	param := simpledb.NewGetParam().WithWhere(simpledb.WhereEqual("pk", "data1")).WithCount()
 	if res, err := db.Get([]*simpledb.GetParam{param}); err != nil {
 		panic(err)
-	} else if len(res) != 1 || len(res[0]) != 1 || res[0][0].NI[0] == nil || *res[0][0].NI[0] != 1 {
+	} else if len(res) != 1 || len(res[0]) != 1 || res[0][0].NI[0] != 1 {
 		panic("count failed")
 	}
 
