@@ -18,6 +18,8 @@ func NewDbDoc(pk string, rev int64, data string) *DbDoc {
 		PK:   pk,
 		Rev:  rev,
 		Data: data,
+		SI:   make(map[int]string),
+		NI:   make(map[int]int64),
 	}
 }
 
