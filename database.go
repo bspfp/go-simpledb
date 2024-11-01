@@ -129,6 +129,18 @@ var indexListForStatement string
 // indexListForUpsert `, excluded.si1, excluded.ni1, excluded.si2, excluded.ni2, ...`
 var indexListForUpsert string
 
+func init() {
+	for i := 0; i < MaxIndex; i++ {
+		indexfield := fmt.Sprintf("si%v", i)
+		indexListForStatement += fmt.Sprintf(", %v", indexfield)
+		indexListForUpsert += fmt.Sprintf(", excluded.%v", indexfield)
+
+		indexfield = fmt.Sprintf("ni%v", i)
+		indexListForStatement += fmt.Sprintf(", %v", indexfield)
+		indexListForUpsert += fmt.Sprintf(", excluded.%v", indexfield)
+	}
+}
+
 func createTable(db *sql.DB, name string) error {
 	var sqlTable strings.Builder
 	sqlTable.Grow(4096)
@@ -142,15 +154,11 @@ func createTable(db *sql.DB, name string) error {
 		indexfield := fmt.Sprintf("si%v", i)
 		indexname := fmt.Sprintf("idx_%v_%v", name, indexfield)
 		sqlIndex[i*2] = fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%v" ON "%v" (%v) WHERE %v NOTNULL`, indexname, name, indexfield, indexfield)
-		indexListForStatement += fmt.Sprintf(", %v", indexfield)
-		indexListForUpsert += fmt.Sprintf(", excluded.%v", indexfield)
 
 		sqlTable.WriteString(fmt.Sprintf(`, ni%v INTEGER`, i))
 		indexfield = fmt.Sprintf("ni%v", i)
 		indexname = fmt.Sprintf("idx_%v_%v", name, indexfield)
 		sqlIndex[i*2+1] = fmt.Sprintf(`CREATE INDEX IF NOT EXISTS "%v" ON "%v" (%v) WHERE %v NOTNULL`, indexname, name, indexfield, indexfield)
-		indexListForStatement += fmt.Sprintf(", %v", indexfield)
-		indexListForUpsert += fmt.Sprintf(", excluded.%v", indexfield)
 	}
 	sqlTable.WriteString(`)`)
 
